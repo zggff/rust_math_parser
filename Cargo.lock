@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "math_parser"
+name = "rust_math_parser"
 version = "0.1.0"
