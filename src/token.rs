@@ -37,6 +37,13 @@ impl<T: Numeric> Token<T> {
         }
         Token::Seg(result)
     }
+    fn parse_number<I: Iterator<Item = char>>(s: &mut Peekable<I>) -> Result<T, MathParseError> {
+        let mut x = String::new();
+        while let Some(c) = s.next_if(|x| x.is_ascii_digit() || *x == '.') {
+            x.push(c);
+        }
+        x.parse().map_err(|_| MathParseError::Number(x))
+    }
     fn validate_inner(s: &Vec<Token<T>>) -> Result<(), MathParseError> {
         let mut prev_is_value = false;
         for tok in s {
@@ -76,13 +83,14 @@ impl<T: Numeric> Token<T> {
         bracket_count: &mut usize,
     ) -> Result<Token<T>, MathParseError> {
         let mut res = vec![];
-        while let Some(c) = s.next() {
-            if c.is_whitespace() {
-                continue;
-            }
+        while let Some(c) = s.peek() {
             match c {
+                ' ' => {
+                    s.next();
+                }
                 '(' => {
                     *bracket_count += 1;
+                    s.next();
                     res.push(Self::parse_inner(s, bracket_count)?)
                 }
                 ')' => {
@@ -90,31 +98,31 @@ impl<T: Numeric> Token<T> {
                         return Err(MathParseError::Bracket);
                     }
                     *bracket_count -= 1;
+                    s.next();
                     return Ok(Token::Seg(res));
                 }
                 '+' => {
+                    s.next();
                     res.push(Token::Add);
                 }
                 '-' => {
-                    res.push(Token::Sub);
+                    s.next();
+                    if s.peek().unwrap().is_ascii_digit() {
+                        let num = Self::parse_number(s)?;
+                        res.push(Token::Val(-num))
+                    } else {
+                        res.push(Token::Sub)
+                    }
                 }
                 '*' => {
+                    s.next();
                     res.push(Token::Mul);
                 }
                 '/' => {
+                    s.next();
                     res.push(Token::Div);
                 }
-                a => {
-                    let mut x = String::new();
-                    x.push(a);
-                    while let Some(c) = s.next_if(|x| x.is_ascii_digit() || *x == '.') {
-                        x.push(c);
-                    }
-                    let Ok(parsed) = x.parse() else {
-                        return Err(MathParseError::Number(x));
-                    };
-                    res.push(Token::Val(parsed))
-                }
+                _ => res.push(Token::Val(Self::parse_number(s)?)),
             }
         }
         Self::validate_inner(&res)?;

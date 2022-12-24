@@ -1,5 +1,5 @@
 use std::{
-    ops::{Add, Div, Mul, Sub},
+    ops::{Add, Div, Mul, Neg, Sub},
     str::FromStr,
 };
 
@@ -14,6 +14,7 @@ pub trait Numeric:
     + Sub<Output = Self>
     + Mul<Output = Self>
     + Div<Output = Self>
+    + Neg<Output = Self>
     + Copy
     + FromStr
     + Default
