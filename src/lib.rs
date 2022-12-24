@@ -6,7 +6,7 @@ use std::{
 };
 
 mod error;
-pub mod token;
+mod token;
 
 use error::MathEvalError;
 pub use error::MathParseError;
@@ -63,14 +63,14 @@ impl<T: Numeric> Op<T> {
             Self::Var(name) => {
                 let c = vars
                     .and_then(|vars| vars.get(name.as_str()))
-                    .ok_or(MathEvalError::Variable(name))?;
+                    .ok_or(MathEvalError::Variable(name.clone()))?;
                 *c
             }
             Self::Fun(name, a) => {
                 let a = a.eval(vars, funs)?;
                 let c = funs
                     .and_then(|vars| vars.get(name.as_str()))
-                    .ok_or(MathEvalError::Function(name))?;
+                    .ok_or(MathEvalError::Function(name.clone()))?;
                 (c)(a)
             }
         };

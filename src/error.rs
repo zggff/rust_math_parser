@@ -17,12 +17,12 @@ impl std::fmt::Display for MathParseError {
 impl std::error::Error for MathParseError {}
 
 #[derive(Debug, Clone)]
-pub enum MathEvalError<'a> {
-    Variable(&'a str),
-    Function(&'a str),
+pub enum MathEvalError {
+    Variable(String),
+    Function(String),
 }
 
-impl<'a> std::fmt::Display for MathEvalError<'a> {
+impl std::fmt::Display for MathEvalError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Variable(token) => write!(f, "no variable found: {token}"),
@@ -30,4 +30,4 @@ impl<'a> std::fmt::Display for MathEvalError<'a> {
         }
     }
 }
-impl<'a> std::error::Error for MathEvalError<'a> {}
+impl std::error::Error for MathEvalError {}
