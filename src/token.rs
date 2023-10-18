@@ -84,7 +84,7 @@ impl<T: Numeric> Token<T> {
         let mut prev_is_value = false;
         for tok in s {
             match tok {
-                Token::Val(_) | Token::Var(_) | Token::Neg(_) => {
+                Token::Val(_) | Token::Var(_) => {
                     if prev_is_value {
                         return Err(MathParseError::Expression);
                     } else {
@@ -100,7 +100,7 @@ impl<T: Numeric> Token<T> {
                         prev_is_value = true;
                     }
                 }
-                Token::Fun(_, s) => {
+                Token::Fun(_, s) | Token::Neg(s) => {
                     Self::validate_inner(&vec![s.as_ref().clone()])?;
                     if prev_is_value {
                         return Err(MathParseError::Expression);
